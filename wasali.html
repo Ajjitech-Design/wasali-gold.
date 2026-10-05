@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wasali Gold | Fine Jewellery & Luxury Timepieces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Supabase JS Client Library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --gold-primary: #C5A059;
+  --gold-light: #E0C388;
+  --gold-dark: #8F6F2D;
+  --bg-dark: #0D0D0D;
+  --bg-card: #141414;
+  --bg-surface: #1C1C1C;
+  --text-main: #F4F4F5;
+  --text-muted: #A1A1AA;
+  --border-color: rgba(197, 160, 89, 0.25);
+  --border-glow: rgba(197, 160, 89, 0.5);
+  --danger-red: #E53E3E;
+  --radius: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, .logo {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+
+/* Header */
+header {
+  background: rgba(13, 13, 13, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 20px 8%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--gold-primary);
+  text-decoration: none;
+  background: linear-gradient(135deg, #FFF 0%, var(--gold-light) 50%, var(--gold-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
+  color: #000;
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 15px rgba(197, 160, 89, 0.2);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.4);
+  background: linear-gradient(135deg, #FFF, var(--gold-light));
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--gold-light);
+  box-shadow: none;
+}
+
+.btn-secondary:hover {
+  border-color: var(--gold-primary);
+  background: rgba(197, 160, 89, 0.08);
+}
+
+.btn-danger {
+  background: rgba(229, 62, 62, 0.15);
+  border: 1px solid var(--danger-red);
+  color: #FF8080;
+  padding: 8px 14px;
+  font-size: 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+  width: 100%;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-danger:hover {
+  background: var(--danger-red);
+  color: #FFF;
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  padding: 90px 8% 70px;
+  text-align: center;
+  background: radial-gradient(circle at center, rgba(197, 160, 89, 0.12) 0%, rgba(13, 13, 13, 0) 70%);
+}
+
+.hero h1 {
+  font-size: Clamp(36px, 5vw, 64px);
+  margin-bottom: 16px;
+  color: #FFF;
+}
+
+.hero p {
+  font-size: 18px;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto 32px;
+  font-weight: 300;
+}
+
+section { padding: 50px 8%; }
+
+.section-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-header h2 {
+  font-size: 36px;
+  color: var(--gold-light);
+  margin-bottom: 8px;
+}
+
+.section-header p {
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-overlay.active { display: flex !important; }
+
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 32px;
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+}
+
+.modal-content h3 { color: var(--gold-light); margin-bottom: 12px; }
+.modal-content p { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+
+/* Admin Panel */
+.admin-section {
+  display: none;
+  background: var(--bg-card);
+  border: 1px solid var(--gold-primary);
+  border-radius: var(--radius);
+  max-width: 550px;
+  margin: 0 auto 40px;
+  padding: 32px;
+  box-shadow: 0 10px 35px rgba(197, 160, 89, 0.15);
+}
+
+.admin-section.active { display: block !important; }
+
+.form-group { margin-bottom: 20px; text-align: left; }
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gold-light);
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: #FFF;
+  font-size: 14px;
+  outline: none;
+  transition: var(--transition);
+}
+
+.form-group input:focus, .form-group select:focus {
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 0 2px rgba(197, 160, 89, 0.2);
+}
+
+/* Category Filters */
+.categories {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.filter {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  padding: 10px 24px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+.filter:hover, .filter.active {
+  border-color: var(--gold-primary);
+  color: var(--gold-light);
+  background: rgba(197, 160, 89, 0.1);
+}
+
+/* Product Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  border-color: var(--border-glow);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+}
+
+.photo {
+  height: 240px;
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition);
+}
+
+.vector-icon {
+  width: 64px;
+  height: 64px;
+  stroke: var(--gold-primary);
+  stroke-width: 1.2;
+  fill: none;
+  opacity: 0.8;
+}
+
+.card-details {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.card h3 { font-size: 18px; margin-bottom: 6px; color: #FFF; }
+.price { color: var(--gold-light); font-weight: 600; font-size: 15px; margin-bottom: 16px; }
+.card .order { margin-top: auto; width: 100%; }
+
+.delete-btn { display: none; }
+body.admin-mode .delete-btn { display: block; }
+
+.info {
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.info h2 { color: var(--gold-light); margin-bottom: 12px; }
+.info p { color: var(--text-muted); font-size: 15px; margin-bottom: 6px; }
+
+footer {
+  background: var(--bg-dark);
+  color: var(--text-muted);
+  text-align: center;
+  padding: 30px 6%;
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="#" class="logo">WASALI GOLD</a>
+  <div class="nav-actions">
+    <button class="btn btn-secondary" id="adminAuthBtn" onclick="openAdminLogin()">🔒 Admin Login</button>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>Fine Jewellery & Watches</h1>
+  <p>Discover crafted gold pieces and authentic luxury timepieces built for elegance.</p>
+  <a class="btn" href="#shop">Explore Collection</a>
+</div>
+
+<section id="shop">
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-content">
+      <h3>Admin Authentication</h3>
+      <p>Enter your Administrator PIN to manage store items.</p>
+      <div class="form-group">
+        <input type="password" id="adminPinInput" placeholder="Enter PIN ****">
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-secondary" style="width:50%;" onclick="closeAdminLogin()">Cancel</button>
+        <button class="btn" style="width:50%;" onclick="verifyAdminPin()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div class="admin-section" id="adminPanel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h3 style="color: var(--gold-light);">Store Management Panel</h3>
+      <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="logoutAdmin()">Lock Portal</button>
+    </div>
+    
+    <form id="addProductForm">
+      <div class="form-group">
+        <label for="prodName">Product Title</label>
+        <input type="text" id="prodName" placeholder="e.g. Diamond Cut Gold Ring" required>
+      </div>
+      <div class="form-group">
+        <label for="prodCategory">Category</label>
+        <select id="prodCategory" required>
+          <option value="gold">Gold Jewellery</option>
+          <option value="watch">Luxury Watches</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="prodPrice">Price</label>
+        <input type="text" id="prodPrice" placeholder="e.g. Price on request or ₦250,000" value="Price on request" required>
+      </div>
+      <div class="form-group">
+        <label for="prodImage">Upload Product Image</label>
+        <input type="file" id="prodImage" accept="image/*">
+      </div>
+      <button type="submit" class="btn" id="submitBtn" style="width: 100%;">Save Product to Supabase</button>
+    </form>
+  </div>
+
+  <div class="section-header">
+    <h2>Our Collection</h2>
+    <p>Browse our curated selection of gold jewellery and premium watches.</p>
+  </div>
+
+  <div class="categories">
+    <button class="filter active" onclick="filter('all', this)">All Items</button>
+    <button class="filter" onclick="filter('gold', this)">Gold Jewellery</button>
+    <button class="filter" onclick="filter('watch', this)">Watches</button>
+  </div>
+
+  <div class="grid" id="productGrid">
+    <!-- Products from Supabase load dynamically here -->
+  </div>
+</section>
+
+<section class="info">
+  <h2>Visit Wasali Gold</h2>
+  <p>Main Tejuosho Market, Shop No. KA1024, Surulere, Lagos</p>
+  <p>Phone: 08121959541</p>
+</section>
+
+<footer>© 2026 Wasali Gold  | powered by AJJITECH </footer>
+
+<script>
+// SUPABASE CLIENT INITIALIZATION
+const SUPABASE_URL = "https://xaoaqwkwodxjyddalkud.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhhb2Fxd2t3b2R4anlkZGFsa3VkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5NTI0MDMsImV4cCI6MjEwNjUyODQwM30._LjulhYEUkL-ApsdQM5Z1Kimyqy9W32o9uhvF2Yi2qY";
+
+// Fixed initialization to prevent variable conflict with window.supabase
+const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const ADMIN_PIN = "2132";
+let isAdminLoggedIn = false;
+let currentFilter = 'all';
+
+// Load products when page loads
+document.addEventListener('DOMContentLoaded', fetchProductsFromSupabase);
+
+// Fetch products from Supabase table
+async function fetchProductsFromSupabase() {
+  if (!supabaseClient) return;
+  const grid = document.getElementById('productGrid');
+  
+  const { data: products, error } = await supabaseClient
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching products:', error.message);
+    return;
+  }
+
+  grid.innerHTML = '';
+  if (products) {
+    products.forEach(prod => {
+      renderProductCard(prod.id, prod.name, prod.category, prod.price, prod.image_url);
+    });
+  }
+}
+
+function renderProductCard(id, name, category, price, imageUrl) {
+  const encodedMsg = encodeURIComponent(`Hello Wasali Gold, I am interested in the ${name}.`);
+  const waLink = `https://wa.me/2348121959541?text=${encodedMsg}`;
+
+  const fallbackSvg = category === 'watch' 
+    ? `<svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><polyline points="12 9 12 12 14 14"/><path d="M9 2h6v3H9zM9 19h6v3H9z"/></svg>`
+    : `<svg class="vector-icon" viewBox="0 0 24 24"><path d="M12 2L9 7H15L12 2Z"/><circle cx="12" cy="14" r="6"/><path d="M12 8v12"/></svg>`;
+
+  const photoHtml = imageUrl ? `<img src="${imageUrl}" alt="${name}">` : fallbackSvg;
+
+  const card = document.createElement('div');
+  card.className = `card product ${category}`;
+  card.style.display = (currentFilter === 'all' || currentFilter === category) ? 'flex' : 'none';
+  
+  card.innerHTML = `
+    <div class="photo">${photoHtml}</div>
+    <div class="card-details">
+      <h3>${name}</h3>
+      <p class="price">${price}</p>
+      <a class="btn order" href="${waLink}" target="_blank">Order on WhatsApp</a>
+      <button class="btn-danger delete-btn" onclick="deleteProductFromSupabase('${id}', '${imageUrl || ''}')">Delete Product</button>
+    </div>
+  `;
+
+  document.getElementById('productGrid').appendChild(card);
+}
+
+// Upload Product & Image to Supabase
+document.getElementById('addProductForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  if (!supabaseClient) {
+    alert("Supabase client is not initialized.");
+    return;
+  }
+
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.innerText = 'Uploading...';
+  submitBtn.disabled = true;
+
+  const name = document.getElementById('prodName').value.trim();
+  const category = document.getElementById('prodCategory').value;
+  const price = document.getElementById('prodPrice').value.trim() || "Price on request";
+  const fileInput = document.getElementById('prodImage');
+  const file = fileInput.files[0];
+
+  let imageUrl = '';
+
+  try {
+    if (file) {
+      const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+      const { data: uploadData, error: uploadError } = await supabaseClient
+        .storage
+        .from('product-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabaseClient
+        .storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+
+      imageUrl = urlData.publicUrl;
+    }
+
+    const { error: dbError } = await supabaseClient
+      .from('products')
+      .insert([{ name, category, price, image_url: imageUrl }]);
+
+    if (dbError) throw dbError;
+
+    document.getElementById('addProductForm').reset();
+    document.getElementById('prodPrice').value = "Price on request";
+    await fetchProductsFromSupabase();
+
+  } catch (error) {
+    alert('Error saving product: ' + error.message);
+  } finally {
+    submitBtn.innerText = 'Save Product to Supabase';
+    submitBtn.disabled = false;
+  }
+});
+
+// Delete Product from Supabase
+async function deleteProductFromSupabase(id, imageUrl) {
+  if (!supabaseClient) return;
+  if (confirm("Permanently delete this product from database?")) {
+    try {
+      if (imageUrl) {
+        const urlParts = imageUrl.split('/');
+        const fileName = urlParts[urlParts.length - 1];
+        await supabaseClient.storage.from('product-images').remove([fileName]);
+      }
+
+      const { error } = await supabaseClient
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      await fetchProductsFromSupabase();
+    } catch (err) {
+      alert("Error deleting product: " + err.message);
+    }
+  }
+}
+
+// Admin Panel Auth Handlers
+function openAdminLogin() {
+  if (isAdminLoggedIn) {
+    document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
+  } else {
+    document.getElementById('loginModal').classList.add('active');
+  }
+}
+
+function closeAdminLogin() {
+  document.getElementById('loginModal').classList.remove('active');
+  document.getElementById('adminPinInput').value = '';
+}
+
+function verifyAdminPin() {
+  const pinInput = document.getElementById('adminPinInput').value;
+  if (pinInput === ADMIN_PIN) {
+    isAdminLoggedIn = true;
+    document.body.classList.add('admin-mode');
+    document.getElementById('adminPanel').classList.add('active');
+    document.getElementById('adminAuthBtn').innerText = '🔓 Admin Unlocked';
+    closeAdminLogin();
+    document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
+  } else {
+    alert('Incorrect PIN. Access Denied.');
+  }
+}
+
+function logoutAdmin() {
+  isAdminLoggedIn = false;
+  document.body.classList.remove('admin-mode');
+  document.getElementById('adminPanel').classList.remove('active');
+  document.getElementById('adminAuthBtn').innerText = '🔒 Admin Login';
+}
+
+function filter(type, btnElement) {
+  currentFilter = type;
+  if (btnElement) {
+    document.querySelectorAll('.filter').forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
+  }
+  document.querySelectorAll('.product').forEach(p => {
+    p.style.display = (type === 'all' || p.classList.contains(type)) ? 'flex' : 'none';
+  });
+}
+</script>
+</body>
+</html>
