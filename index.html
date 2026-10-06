@@ -595,17 +595,49 @@ function closeAdminLogin() {
   document.getElementById('adminPinInput').value = '';
 }
 
-function verifyAdminPin() {
+// function verifyAdminPin() {
+//   const pinInput = document.getElementById('adminPinInput').value;
+//   if (pinInput === ADMIN_PIN) {
+//     isAdminLoggedIn = true;
+//     document.body.classList.add('admin-mode');
+//     document.getElementById('adminPanel').classList.add('active');
+//     document.getElementById('adminAuthBtn').innerText = '🔓 Admin Unlocked';
+//     closeAdminLogin();
+//     document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
+//   } else {
+//     alert('Incorrect PIN. Access Denied.');
+//   }
+// }
+  // Replace your existing verifyAdminPin function with this one:
+async function verifyAdminPin() {
   const pinInput = document.getElementById('adminPinInput').value;
-  if (pinInput === ADMIN_PIN) {
-    isAdminLoggedIn = true;
-    document.body.classList.add('admin-mode');
-    document.getElementById('adminPanel').classList.add('active');
-    document.getElementById('adminAuthBtn').innerText = '🔓 Admin Unlocked';
-    closeAdminLogin();
-    document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
-  } else {
-    alert('Incorrect PIN. Access Denied.');
+  
+  if (!pinInput) {
+    alert('Please enter a PIN.');
+    return;
+  }
+
+  try {
+    // Call the secure Supabase RPC function
+    const { data: isValid, error } = await supabaseClient.rpc('verify_admin_pin', { 
+      entered_pin: pinInput 
+    });
+
+    if (error) throw error;
+
+    if (isValid === true) {
+      isAdminLoggedIn = true;
+      document.body.classList.add('admin-mode');
+      document.getElementById('adminPanel').classList.add('active');
+      document.getElementById('adminAuthBtn').innerText = '🔒 Admin Unlocked';
+      closeAdminLogin();
+      document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      alert('Incorrect PIN. Access Denied.');
+    }
+  } catch (err) {
+    console.error('Auth error:', err);
+    alert('Authentication error. Please try again.');
   }
 }
 
